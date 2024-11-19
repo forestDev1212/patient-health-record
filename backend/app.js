@@ -54,6 +54,7 @@ app.use(passport.session());
 // Route Prefixing
 app.use("/api/v1", require("./routes/index")); // Adds prefix to index routes
 app.use("/api/v1/auth", require("./routes/auth")); // Adds prefix to auth routes
+app.use("/api/v1/logs", require("./routes/log"));
 
 // Start the server
 app.listen(PORT, console.log(`listening at ${PORT}`));
