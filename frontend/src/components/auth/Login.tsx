@@ -1,14 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode"; // Correct import
 import axios from "axios"; // Import Axios
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux"; // Redux (if applicable)
-import { login } from "@/store/slice/auth.slice";
+import { login, logout } from "@/store/slice/auth.slice"; // Redux actions (if applicable)
+import { GOOGLE_CLIENT_ID } from "@/config/config";
 
 const Login: React.FC = () => {
   const dispatch = useDispatch(); // Redux dispatch (if applicable)
+  const [user, setUser] = useState<{
+    name: string;
+    email: string;
+    picture: string;
+  } | null>(null);
 
   const handleGoogleLogin = async (credentialResponse: any) => {
     if (credentialResponse.credential) {
@@ -29,11 +35,15 @@ const Login: React.FC = () => {
         const data = res.data;
 
         if (data.payload) {
-          const { name, email, picture } = data.payload;
+          const { name, email, picture, id } = data.payload;
+
+          // Update local state with user info
+          setUser({ name, email, picture });
 
           // If using Redux, dispatch the login action
           dispatch(
             login({
+              id,
               name,
               email,
               picture,
@@ -68,6 +78,19 @@ const Login: React.FC = () => {
     }
   };
 
+  const handleLogout = () => {
+    // Clear local user state
+    setUser(null);
+
+    // If using Redux, dispatch the logout action
+    dispatch(logout());
+
+    toast.success("Logged out successfully!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  };
+
   const handleError = () => {
     toast.error("Login failed. Please try again.", {
       position: "top-right",
@@ -77,14 +100,25 @@ const Login: React.FC = () => {
   };
 
   return (
-    <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
-      <div className="flex items-center justify-center h-screen bg-gray-100">
-        <ToastContainer />
-        <div className="bg-white p-8 rounded shadow-md text-center">
-          <h1 className="text-2xl font-bold mb-4">Login to Your Account</h1>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <ToastContainer />
+      {user ? (
+        // Show user info and logout button
+        <div className=" flex gap-2 justify-center items-center">
+          <h2 className="text-xl font-bold">{user.name}</h2>
+          <button
+            onClick={handleLogout}
+            className=" bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600"
+          >
+            Logout
+          </button>
+        </div>
+      ) : (
+        // Show Google login button
+        <div>
           <GoogleLogin onSuccess={handleGoogleLogin} onError={handleError} />
         </div>
-      </div>
+      )}
     </GoogleOAuthProvider>
   );
 };
