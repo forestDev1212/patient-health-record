@@ -27,18 +27,20 @@ const Home: React.FC = () => {
       <header className="bg-indigo-600 text-white px-6 py-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold">Patient Health Record</h1>
         <div>
-          <button
-            onClick={() => setShowForm(true)}
-            className="bg-white text-indigo-600 px-4 py-2 rounded-lg shadow mr-4"
-          >
-            Create Log
-          </button>
           <Login />
         </div>
       </header>
 
       {/* Content */}
       <main className="p-6">
+        <div>
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-white text-indigo-600 px-4 py-2 rounded-lg shadow mr-4"
+          >
+            Create Log
+          </button>
+        </div>
         {showForm && (
           <DailyLogForm
             onSubmit={(log) => {
@@ -48,11 +50,15 @@ const Home: React.FC = () => {
             onCancel={() => setShowForm(false)}
           />
         )}
-        <LogsTable
-          logs={logs}
-          onEdit={handleEditLog}
-          onDelete={handleDeleteLog}
-        />
+        {!showForm && (
+          <>
+            <LogsTable
+              logs={logs}
+              onEdit={handleEditLog}
+              onDelete={handleDeleteLog}
+            />
+          </>
+        )}
       </main>
     </div>
   );
